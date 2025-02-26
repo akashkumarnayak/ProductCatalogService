@@ -56,12 +56,22 @@ public class ProductController {
     @PatchMapping("/products/{id}")
     private ProductDto updateProduct(@PathVariable long id, @RequestBody ProductDto productDto) {
 
+        if(id<=0)
+        {
+            throw new IllegalArgumentException("Product id must be a positive integer");
+        }
+
         productDto.setName("i phone");
         return productDto;
     }
 
     @PutMapping("/products/{id}")
     private ProductDto replaceProduct (@PathVariable long id, @RequestBody ProductDto productDto) {
+
+        if(id<=0)
+        {
+            throw new IllegalArgumentException("Product id must be a positive integer");
+        }
 
         Product product = fakeStoreProductService.replaceProductById(id,from(productDto));
         return from(product);
@@ -70,7 +80,13 @@ public class ProductController {
     @DeleteMapping("/products/{id}")
     private ProductDto deleteProduct(@PathVariable long id) {
 
-        return new ProductDto();
+        if(id<=0)
+        {
+            throw new IllegalArgumentException("Product id must be a positive integer");
+        }
+
+        Product product = fakeStoreProductService.deleteProductById(id);
+        return from(product);
     }
 
     private ProductDto from(Product product){

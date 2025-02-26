@@ -63,6 +63,18 @@ public class FakeStoreProductService implements IProductService{
         return null;
     }
 
+    public Product deleteProductById(long id) {
+
+        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity =  requestForEntity("https://fakestoreapi.com/products/{id}",HttpMethod.DELETE, null ,FakeStoreProductDto.class, id);
+
+        if(fakeStoreProductDtoResponseEntity.getBody()!=null && fakeStoreProductDtoResponseEntity.getStatusCode().equals(HttpStatusCode.valueOf(200)))
+        {
+            return from(fakeStoreProductDtoResponseEntity.getBody());
+        }
+
+        return null;
+    }
+
     public List<Product> getAllProducts()
     {
         RestTemplate restTemplate = restTemplateBuilder.build();
