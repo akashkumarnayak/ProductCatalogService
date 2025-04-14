@@ -1,25 +1,30 @@
 package org.example.productcatelogservice.controllers;
 
+import org.example.productcatelogservice.dto.ProductCategoryDto;
 import org.example.productcatelogservice.dto.ProductDto;
 import org.example.productcatelogservice.models.Product;
+import org.example.productcatelogservice.models.ProductCategory;
 import org.example.productcatelogservice.services.FakeStoreProductService;
 import org.example.productcatelogservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/products")
 public class ProductController {
 
     @Autowired
-    IProductService fakeStoreProductService;
+            @Qualifier("sps")
+    IProductService productService;
 
-    @GetMapping("/products")
+    @GetMapping()
     private List<ProductDto> getAllProducts()
     {
-        List<Product> products = fakeStoreProductService.getAllProducts();
+        List<Product> products = productService.getAllProducts();
         List<ProductDto> productDtos = new ArrayList<>() {};
 
         for(Product product : products)
@@ -30,14 +35,20 @@ public class ProductController {
         return productDtos;
     }
 
-    @GetMapping("/products/{id}")
-    private ProductDto getProduct(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    ProductDto getProduct(@PathVariable Long id) {
 
-        if (id<=0)
+        if (id<0)
         {
-            throw new IllegalArgumentException("Product id must be a positive integer");
+            throw new IllegalArgumentException("Product id must be positive integer");
         }
-        Product product = fakeStoreProductService.getProductById(id);
+        else if(id==0)
+        {
+            throw new IllegalArgumentException("Product id must be greater than zero");
+        }
+
+
+        Product product = productService.getProductById(id);
         if(product==null)
         {
             return null;
@@ -46,14 +57,14 @@ public class ProductController {
         return from(product);
     }
 
-    @PostMapping("/products")
+    @PostMapping()
     private ProductDto createProduct(@RequestBody ProductDto productDto) {
 
-        Product responseProduct = fakeStoreProductService.createNewProduct(from(productDto));
+        Product responseProduct = productService.createNewProduct(from(productDto));
         return from(responseProduct);
     }
 
-    @PatchMapping("/products/{id}")
+    @PatchMapping("/{id}")
     private ProductDto updateProduct(@PathVariable long id, @RequestBody ProductDto productDto) {
 
         if(id<=0)
@@ -65,7 +76,7 @@ public class ProductController {
         return productDto;
     }
 
-    @PutMapping("/products/{id}")
+    @PutMapping("/{id}")
     private ProductDto replaceProduct (@PathVariable long id, @RequestBody ProductDto productDto) {
 
         if(id<=0)
@@ -73,11 +84,11 @@ public class ProductController {
             throw new IllegalArgumentException("Product id must be a positive integer");
         }
 
-        Product product = fakeStoreProductService.replaceProductById(id,from(productDto));
+        Product product = productService.replaceProductById(id,from(productDto));
         return from(product);
     }
 
-    @DeleteMapping("/products/{id}")
+    @DeleteMapping("/{id}")
     private ProductDto deleteProduct(@PathVariable long id) {
 
         if(id<=0)
@@ -85,17 +96,31 @@ public class ProductController {
             throw new IllegalArgumentException("Product id must be a positive integer");
         }
 
-        Product product = fakeStoreProductService.deleteProductById(id);
+        Product product = productService.deleteProductById(id);
         return from(product);
     }
 
     private ProductDto from(Product product){
+
+        if(product==null)
+        {
+            return null;
+        }
+
         ProductDto productDto = new ProductDto();
         productDto.setId(product.getId());
         productDto.setName(product.getName());
         productDto.setDescription(product.getDescription());
         productDto.setPrice(product.getPrice());
-        productDto.setCategory(product.getCategory());
+
+        if(product.getCategory()!=null) {
+            ProductCategoryDto productCategory = new ProductCategoryDto();
+            productCategory.setId(product.getId());
+            productCategory.setName(product.getCategory().getName());
+            productCategory.setDescription(product.getCategory().getDescription());
+            productDto.setCategory(productCategory);
+        }
+
         productDto.setImageUrl(product.getImageUrl());
 
         return productDto;
@@ -103,12 +128,20 @@ public class ProductController {
 
     private Product from(ProductDto productDto){
         Product product = new Product();
+        product.setId(productDto.getId());
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
-        product.setCategory(productDto.getCategory());
         product.setImageUrl(productDto.getImageUrl());
-        //product.setId(productDto.getId());
+
+        if(productDto.getCategory()!=null) {
+            ProductCategory productCategory = new ProductCategory();
+            productCategory.setId(productDto.getCategory().getId());
+            productCategory.setName(productDto.getCategory().getName());
+            productCategory.setDescription(productDto.getCategory().getDescription());
+            product.setCategory(productCategory);
+        }
+
         return product;
     }
 

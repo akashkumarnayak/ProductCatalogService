@@ -1,7 +1,6 @@
 package org.example.productcatelogservice.services;
 
 import org.example.productcatelogservice.dto.FakeStoreProductDto;
-import org.example.productcatelogservice.dto.ProductDto;
 import org.example.productcatelogservice.models.Product;
 import org.example.productcatelogservice.models.ProductCategory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service("fkps")
 public class FakeStoreProductService implements IProductService{
 
     @Autowired

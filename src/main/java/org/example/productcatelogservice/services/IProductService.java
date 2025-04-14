@@ -1,6 +1,5 @@
 package org.example.productcatelogservice.services;
 
-import org.example.productcatelogservice.dto.ProductDto;
 import org.example.productcatelogservice.models.Product;
 
 import java.util.List;
